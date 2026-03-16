@@ -1,4 +1,7 @@
-# Setup Guide & Common Pitfalls
+# Setup Guide & Common Pitfalls — v1.0 (Google Maps Edition)
+
+> This guide covers the setup of **v1.0** of the n8n Google AI Lead Generator.  
+> Lead source for this version: **Google Maps**.
 
 ---
 
@@ -103,7 +106,6 @@ After creating both sheets:
 5. Start chatting with your bot
 
 **Optional — Restrict bot to your Telegram ID only:**
-
 Add an IF node after the Telegram Trigger that checks:
 ```
 {{ $json.message.from.id }} == YOUR_TELEGRAM_USER_ID
@@ -115,7 +117,6 @@ This prevents others from using your bot.
 ### Step 6 — Update Email Template
 
 In `[IL] AgentLeadMailGenerate`:
-
 1. Open the `add email and html` node (Edit Fields)
 2. Replace `defaultemail` value with your real sender email
 3. Replace `htmltemplate` value with your own Brevo HTML template (or keep the provided one)
@@ -183,6 +184,17 @@ To get a Brevo template:
 
 ---
 
+### Google Maps Scraping (v1.0 specific)
+
+| Issue | Cause | Fix |
+|---|---|---|
+| Google Maps returns no results | Wrong query format | Check query format: `niche + city` (e.g., `dentists Kyiv`) |
+| Scraping returns empty | Rate limiting or CAPTCHA | Add Wait nodes; reduce batch size |
+| Missing website column | Business has no website listed | Handle nulls with IF nodes in downstream workflows |
+| Duplicate companies | Same business from different queries | Enable dedup logic before writing to SiteCompany tab |
+
+---
+
 ### n8n Memory Limits
 
 | Issue | Cause | Fix |
@@ -200,7 +212,6 @@ To get a Brevo template:
 | Sub-agent not found by AI Agent | Workflow inactive or wrong ID | Activate sub-workflow and check Tool node references |
 | Loop runs forever | Missing exit condition | Ensure IF nodes have both true/false branches connected |
 | Scraping returns empty | Website blocked or no email on page | Add error handling, log failed domains |
-| Google Maps returns no results | Wrong query format | Check query format: `niche + city` (e.g., `dentists Kyiv`) |
 
 ---
 
@@ -211,7 +222,7 @@ To get a Brevo template:
    -> Check: queries appear in Google Sheets
 
 2. Test AgentLeadAddSiteCompany manually
-   -> Check: companies appear in SiteCompany tab
+   -> Check: companies appear in SiteCompany tab (from Google Maps)
 
 3. Test AgentLeadScrapInformationCompany manually
    -> Check: emails and info appear in Final tab
@@ -229,3 +240,7 @@ To get a Brevo template:
    -> Send: "collect dentists Kyiv"
    -> Monitor: workflow executions in n8n
 ```
+
+---
+
+> **v1.0 — Google Maps Edition** | Next: v2.0 (LinkedIn), v3.0 (Multi-source)
