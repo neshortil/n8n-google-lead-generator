@@ -1,13 +1,14 @@
-# Screenshots & Demo Videos
+# Screenshots & Demo Videos — v1.0 (Google Maps Edition)
 
-This file contains placeholder sections for all screenshots and demo videos.
-Add your screenshots to the `/images/` folder and update the links below.
+> This file contains placeholder sections for all screenshots and demo videos for **v1.0**.  
+> Add your screenshots to the `/images/` folder and update the links below.
 
 ---
 
 ## Screenshots
 
 ### 1. Main Workflow — `[IL] GOOGLE LEAD GENERATOR`
+*(v1.0 — Main Orchestrator)*
 
 > Upload screenshot as: `images/workflow-main.png`
 
@@ -21,6 +22,7 @@ Add your screenshots to the `/images/` folder and update the links below.
 ---
 
 ### 2. Query Generator Workflow — `[IL] AgentLeadAddQuery`
+*(Generates Google Maps search queries)*
 
 > Upload screenshot as: `images/workflow-query-generator.png`
 
@@ -34,7 +36,8 @@ Add your screenshots to the `/images/` folder and update the links below.
 
 ---
 
-### 3. Scraper Workflow — `[IL] AgentLeadAddSiteCompany`
+### 3. Google Maps Scraper — `[IL] AgentLeadAddSiteCompany`
+*(Core v1.0 — Google Maps scraping)*
 
 > Upload screenshot as: `images/workflow-scraper.png`
 
@@ -112,6 +115,7 @@ Add your screenshots to the `/images/` folder and update the links below.
 ---
 
 ### 9. Google Sheets — SiteCompany Database
+*(v1.0 — data sourced from Google Maps)*
 
 > Upload screenshot as: `images/sheets-site-company.png`
 
@@ -120,6 +124,7 @@ Add your screenshots to the `/images/` folder and update the links below.
 **What to show:**
 - Example of populated `SiteCompany` tab
 - Columns: name, address, phone, website
+- Data scraped from Google Maps
 
 ---
 
@@ -151,13 +156,14 @@ Add your screenshots to the `/images/` folder and update the links below.
 
 ## Demo Videos
 
-### Full System Demo
+### Full System Demo (v1.0 — Google Maps Edition)
 
 **YouTube Link:** *(to be added)*
 
 **What to show:**
 - Full end-to-end run from Telegram command to email sent
 - Screen recording of n8n execution
+- Google Maps scraping in action
 - Google Sheets filling up in real time
 - Final email received in inbox
 
@@ -184,6 +190,10 @@ Add your screenshots to the `/images/` folder and update the links below.
 3. Upload to the `/images/` folder in this repository
 4. The image will automatically appear in this doc and in the README
 
-**Recommended screenshot resolution:** 1920x1080 or higher
-**Recommended format:** PNG
+**Recommended screenshot resolution:** 1920x1080 or higher  
+**Recommended format:** PNG  
 **Recommended tool:** n8n built-in canvas zoom + browser screenshot
+
+---
+
+> **v1.0 — Google Maps Edition** | Next: v2.0 (LinkedIn), v3.0 (Multi-source)
