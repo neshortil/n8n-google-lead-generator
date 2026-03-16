@@ -1,13 +1,15 @@
-# Workflow Explanations
+# Workflow Explanations — v1.0 (Google Maps Edition)
 
-Detailed breakdown of every workflow in the [IL] Lead Generator system.
+> Detailed breakdown of every workflow in the **[IL] Google Lead Generator system — v1.0**.  
+> All lead discovery in this version is based on **Google Maps**.
 
 ---
 
 ## 1. `[IL] GOOGLE LEAD GENERATOR`
+*(Main Orchestrator — v1.0 entry point)*
 
 ### Purpose
-The **main orchestrator** of the entire system. Receives commands from Telegram (text or voice), routes them through an AI Agent, and dispatches work to the appropriate sub-agent tools.
+The **main orchestrator** of the entire v1.0 system. Receives commands from Telegram (text or voice), routes them through an AI Agent, and dispatches work to the appropriate sub-agent tools.
 
 ### How It Works
 1. **Telegram Trigger** listens for incoming messages
@@ -31,7 +33,7 @@ The **main orchestrator** of the entire system. Receives commands from Telegram 
 
 | Tool | Description |
 |---|---|
-| `AgentLeadAddQuery` | Generates and stores search queries |
+| `AgentLeadAddQuery` | Generates and stores Google Maps search queries |
 | `AgentLeadAddSiteCompany` | Scrapes Google Maps, collects company websites |
 | `AgentLeadScrapInformationCompany` | Extracts full company info |
 | `AgentLeadMailGenerate` | Generates personalized HTML emails |
@@ -109,6 +111,7 @@ Generates a batch of **Google Maps search queries** for a given niche and city u
 ---
 
 ## 3. `[IL] AgentLeadAddSiteCompany`
+*(Core v1.0 scraping workflow — Google Maps)*
 
 ### Purpose
 Scrapes **Google Maps** to discover businesses matching queries from the Query sheet, collects their website URLs, and stores raw company data in the SiteCompany sheet.
@@ -116,7 +119,7 @@ Scrapes **Google Maps** to discover businesses matching queries from the Query s
 ### How It Works
 1. **Execute Workflow Trigger** receives call from parent AI Agent
 2. Reads pending queries from the Query sheet
-3. Runs Google Maps scraping for each query
+3. Runs **Google Maps scraping** for each query
 4. Extracts: company name, address, phone, website URL
 5. Writes results to the SiteCompany tab in Google Sheets
 6. Reports progress back via TelegramMessage
@@ -139,6 +142,7 @@ Scrapes **Google Maps** to discover businesses matching queries from the Query s
 - **Missing website column**: Some businesses have no website — handle nulls in downstream workflows
 
 ### Important Notes
+- This is the **primary lead source for v1.0** — all leads come from Google Maps
 - This workflow feeds data that `AgentLeadScrapInformationCompany` depends on
 - Described in the AI Agent as: *"Collects company websites and adds them to an Excel file"*
 
@@ -315,3 +319,7 @@ Sends the generated HTML emails to leads via **Gmail**, using the content from t
 
 ### Demo Video
 **YouTube Link:** *(to be added)*
+
+---
+
+> **v1.0 — Google Maps Edition** | Next: v2.0 (LinkedIn), v3.0 (Multi-source)
