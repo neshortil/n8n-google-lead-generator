@@ -1,0 +1,770 @@
+{
+  "name": "[ IL ] GOOGLE LEAD GENERATOR",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -448,
+        128
+      ],
+      "id": "51dca2e4-fecc-49e2-b52d-ce50b307cf70",
+      "name": "Telegram Trigger",
+      "webhookId": "39c8e357-89f9-4865-8d1a-b2fb3f4ea960",
+      "credentials": {
+        "telegramApi": {
+          "id": "cTLhHjBxiTOFZE2M",
+          "name": "GOOGLE"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "6f52c8d0-01ae-47a9-82bf-01e7eeb8e06f",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -224,
+        128
+      ],
+      "id": "b261a88e-51af-4101-af7e-67043105118e",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "082afe5f-3030-4e43-bbe1-455f94d504f5",
+      "name": "Telegram",
+      "webhookId": "57e6aa07-7f3b-4ad8-b331-3fe31feb5858",
+      "credentials": {
+        "telegramApi": {
+          "id": "cTLhHjBxiTOFZE2M",
+          "name": "GOOGLE"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        224,
+        0
+      ],
+      "id": "79086a70-5d07-46ce-843e-f364ffeab47b",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "bSfqMAlQFAerUcUQ",
+          "name": "my local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1c87917-f924-4ef8-b333-984fb5082ef3",
+              "name": "text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        112,
+        224
+      ],
+      "id": "69630a6f-31da-4dfe-873f-89898d4c43f7",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        448,
+        128
+      ],
+      "id": "b57f9ccc-df18-4a1c-99b6-65310b7613dd",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "options": {
+          "systemMessage": "=ТЫ – ИНТЕЛЛЕКТУАЛЬНЫЙ АССИСТЕНТ ДЛЯ СБОРА ИНФОРМАЦИИ О КОМПАНИЯХ. ТЫ ОБЛАДАЕШЬ ПОЛНЫМ ДОСТУПОМ К НАБОРУ ИНСТРУМЕНТОВ ДЛЯ ПОИСКА, АНАЛИЗА И ФИКСАЦИИ ДАННЫХ В ЭКСЕЛЬ-ФАЙЛЫ. ТВОЯ ЗАДАЧА – ЧЕТКО ИСПОЛНЯТЬ КОМАНДЫ ПОЛЬЗОВАТЕЛЯ И ОПТИМАЛЬНО ИСПОЛЬЗОВАТЬ ИНСТРУМЕНТЫ.\n\n### ДОСТУПНЫЕ ИНСТРУМЕНТЫ ###\n1. **AgentLeadAddQuery** – СОЗДАЕТ И СОХРАНЯЕТ ЗАПРОСЫ В ЭКСЕЛЬ-ФАЙЛ, ЕСЛИ ПОЛЬЗОВАТЕЛЬ ПОРОСИТ СОБРАТЬ ЗАПРОСЫ, ТЫ ДОЛЖЕН ВЫПОЛНИТЬ ЭТОТ ИНСТРУМЕНТ\n2. **AgentLeadAddSiteCompany** – СОБИРАЕТ САЙТЫ КОМПАНИЙ ИЗ GOOGLE MAPS ПО СОЗДАННЫМ ЗАПРОСАМ\n3. **AgentLeadScrapInformationCompany** – СОБИРАЕТ ДАННЫЕ О КОМПАНИЯХ С ИХ САЙТОВ\n4. **TelegramMessage** – ОТПРАВЛЯЕТ ТЕХНИЧЕСКОЕ СООБЩЕНИЕ О НАЧАЛЕ РАБОТЫ\n5. **QuerySheets** – ВОЗВРАЩАЕТ ЗАПРОСЫ, КОТОРЫЕ ЕЩЁ НЕ ОБРАБАТЫВАЛИСЬ\n6. **SiteCompanySheets** – ВОЗВРАЩАЕТ САЙТЫ КОМПАНИЙ, ПО КОТОРЫМ ЕЩЁ НЕ БЫЛО СБОРА ДАННЫХ\n7. **AgentLeadMailGenerate** - СОЗДАЁТ ЧЕРНОВИК ПИСЬМА И СОХРОНЯЕТ ЕГО В ЭКСЕЛЬ\n8. **AgentCheckMail** - ОТФИЛЬТРОВУЕТ УЖЕ ПОЛУЧЕННЫЕ ЕМЕЙЛЫ КОМПАНИЙ ОТ ПОВТОРОВ И ПРОХОДИТ ЧЕРЕЗ УРОВНИ ВАЛИДАЦИИ ЕМЕЙЛОВ\n9. **AgentSendMail** - ОТПРАВЛЯЕТ ЕМЕЙЛЫ ПО СПИСКУ КОМПАНИЙ\n\n\n### ЛОГИКА РАБОТЫ ###\n1. **ОТПРАВКА ТЕХНИЧЕСКОГО СООБЩЕНИЯ В ПЕРВУЮ ОЧЕРЕДЬ**\n   - В первую очередь, перед вызовом инструментов, вызови `TelegramMessage`\n   - Сообщи пользователю, что ты начал выполнять задачу, скажи что тебе понадобится некоторое время, предупреди что процессы долгие\n   - Сразу переходи к поставленной задаче\n\n2. **ПРОВЕРКА НЕОБРАБОТАННЫХ ЗАПРОСОВ**\n   - Если пользователь запрашивает невыполненные запросы, вызови инструмент `QuerySheets`\n   - Проанализируй результат и верни часть запросов со статусом 0\n\n3. **СОЗДАНИЕ НОВЫХ ЗАПРОСОВ**\n   - Если пользователь просит создать новые запросы (например: \"давай соберём стоматологии Киев\"), вызови `AgentLeadAddQuery`\n   - Передай запрос в формате: `\"Подготовить запросы на тему {тема}, город {город}\"`\n   - После выполнения инструмента, сообщи пользователю, что запросы успешно созданы\n   - Если пользователь просит собрать ещё запросы, вызови `AgentLeadAddQuery`\n\n4. **СБОР САЙТОВ ПО ЗАПРОСАМ**\n   - Если пользователь просит собрать сайты, вызови `AgentLeadAddSiteCompany`\n   - Просто запусти инструмент 1 раз и сообщи пользователю, что сбор сайтов начат\n\n5. **СБОР ИНФОРМАЦИИ О КОМПАНИЯХ**\n   - Перед вызовом `AgentLeadScrapInformationCompany` вызрви инструмент SiteCompanySheets, убедись что есть сайты с нулевым статусом получения данных\n   - Если пользователь просит собрать данные о компаниях, вызови `AgentLeadScrapInformationCompany`\n   - Если пользователь просит собрать информацию о компаниях вызови `AgentLeadScrapInformationCompany`\n   - Если пользователь просит собрать информацию с сайтов вызови `AgentLeadScrapInformationCompany` \n   - Просто запусти инструмент, но перед запуском, сообщи пользователю, что сбор данных начат\n\n6. **ФИЛЬТРАЦИЯ ЕМЕЙЛОВ**\n  - Если пользователь просит отфильтровать уже полученные емейлы вызови `AgentSendMail`\n   - Если пользователь просит отобрать емейлы от повторов вызови `AgentCheckMail`\n   - Просто запусти инструмент `AgentSendMail` и сообщи пользователю что создание писем начато\n\n7. **СОЗДАНИЯ ЧЕРНОВИКА ПИСЬМА**\n   - Если пользователь просит создать письма для компаний вызови `AgentLeadMailGenerate`\n   - Если пользователь просит создать черновик писем по собранным компаниям вызови `AgentLeadMailGenerate`\n   - Просто запусти инструмент `AgentLeadMailGenerate` и сообщи пользователю что создание писем начато\n\n8. **ОТПРАВКА ЕМЕЙЛОВ**\n  - Если пользователь просит отправить емейлы компаниям вызови `AgentSendMail`\n   - Просто запусти инструмент `AgentSendMail` и сообщи пользователю что создание писем начато\n\n### Дополнительные задачи ###\n   - Если ты получил ошибку, верни её опиши что произашло, и предложи войти всистему чтобы решить её\n   - Если ты получаешь ошибку обязательно напиши в каком инструменте это произашло\n   - Если пользователь просто пишет привет, предложи ему схему своей работы, при условии если это просто привет, без доп текста, в иных случаях выполняй поставленную задачу\n\n### ЧТО НЕ ДЕЛАТЬ ###\n- **НЕ СПРАШИВАЙ У ПОЛЬЗОВАТЕЛЯ ЛИШНИХ ПОДРОБНОСТЕЙ**, ЕСЛИ ВСЕ ДАННЫЕ УЖЕ ЯСНЫ\n- **НЕ ВЫПОЛНЯЙ ДЕЙСТВИЯ, КОТОРЫЕ НЕ ОПИСАНЫ В ИНСТРУКЦИЯХ**\n- **НЕ ДУМАЙ, ЧТО ЗАПРОСЫ УЖЕ ЕСТЬ – ВСЕГДА ПРОВЕРЯЙ `QuerySheets`**\n- **НЕ ПРОСИ ПОДТВЕРЖДЕНИЯ, ЕСЛИ ПОЛЬЗОВАТЕЛЬ УЖЕ ОТДАЛ КОНКРЕТНУЮ КОМАНДУ**\n- **НЕ СМОТРИ НА ПАМЯТЬ ЕСЛИ ПОЛЬЗОВАТЕЛЬ ПРОСИТ СОБРАТЬ ЕЩЁ ЗАПРОСЫ, ВЫПОЛНИ ЗАДАЧУ**"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        672,
+        128
+      ],
+      "id": "8adb29a5-fb39-4298-bdfd-19f7fa911236",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "name": "AgentLeadAddSiteCompany",
+        "description": "Collects company websites and adds them to an Excel file",
+        "workflowId": {
+          "__rl": true,
+          "value": "b6ITL5r10gFQKU1g",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/b6ITL5r10gFQKU1g",
+          "cachedResultName": "[ IL ] AgentLeadAddSiteCompany"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        480,
+        464
+      ],
+      "id": "3d523d54-971a-48b7-93a6-398b19611f2b",
+      "name": "AgentLeadAddSiteCompany"
+    },
+    {
+      "parameters": {
+        "name": "AgentLeadScrapInformationCompany",
+        "description": "Collects information on companies and writes information into an Excel file",
+        "workflowId": {
+          "__rl": true,
+          "value": "52N81UG2mWnIKRlC",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/52N81UG2mWnIKRlC",
+          "cachedResultName": "[ IL ] AgentLeadScrapInformationCompany"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        656,
+        464
+      ],
+      "id": "cdf3677f-0915-4a82-9f42-f7f99132bac0",
+      "name": "AgentLeadScrapInformationCompany"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Text', `Insert a message for the TelegramMessage tool`, 'string') }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegramTool",
+      "typeVersion": 1.2,
+      "position": [
+        1312,
+        464
+      ],
+      "id": "6bac51aa-ed93-4e58-b391-49f211346911",
+      "name": "TelegramMessage",
+      "webhookId": "5cb576f5-08fe-48cf-ab71-230187fbf50d",
+      "credentials": {
+        "telegramApi": {
+          "id": "cTLhHjBxiTOFZE2M",
+          "name": "GOOGLE"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1342ojoe3mf5CAY6fefNVBAonaioFnPk21Fa24POqFyo",
+          "mode": "list",
+          "cachedResultName": "Лиды компаний",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Запросы",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Статус выполнения",
+              "lookupValue": "0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        1472,
+        464
+      ],
+      "id": "3252bb0e-9141-436f-97e8-63f1a24af764",
+      "name": "QuerySheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GPV4sAvm0FMvsjFh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1342ojoe3mf5CAY6fefNVBAonaioFnPk21Fa24POqFyo",
+          "mode": "list",
+          "cachedResultName": "Лиды компаний",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2128725837,
+          "mode": "list",
+          "cachedResultName": "Компании",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Статус получения данных",
+              "lookupValue": "0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        1616,
+        464
+      ],
+      "id": "ab7074bb-304d-4526-8d7d-0b36c328a7a6",
+      "name": "SiteCompanySheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GPV4sAvm0FMvsjFh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "AgentLeadMailGenerate",
+        "description": "A tool for creating draft letters for companies\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "rNpcVX0BKO2loSLh",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/rNpcVX0BKO2loSLh",
+          "cachedResultName": "[ IL ] AgentLeadMailGenerate"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        992,
+        464
+      ],
+      "id": "ed834309-c611-4463-b5e9-c174d21b7789",
+      "name": "AgentLeadMailGenerate"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1104,
+        128
+      ],
+      "id": "57ad7ce7-6131-482d-aa01-4028b382428c",
+      "name": "Telegram1",
+      "webhookId": "d4250d56-93e4-4e84-b675-3dab582ef606",
+      "credentials": {
+        "telegramApi": {
+          "id": "cTLhHjBxiTOFZE2M",
+          "name": "GOOGLE"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -48,
+        464
+      ],
+      "id": "642cfc37-a7da-4f5e-b937-f75aeb5476c1",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "bSfqMAlQFAerUcUQ",
+          "name": "my local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "AgentLeadAddQuery",
+        "description": "Creates a query in an Excel file",
+        "workflowId": {
+          "__rl": true,
+          "value": "XlXrxIl4W589awNm",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/XlXrxIl4W589awNm",
+          "cachedResultName": "[ IL ] AgentLeadAddQuery"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        304,
+        464
+      ],
+      "id": "2b840fe8-1cbc-4db5-a3d3-405742c0432b",
+      "name": "AgentLeadAddQuery"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        1776,
+        464
+      ],
+      "id": "df3e8063-18c7-4690-ba48-549e940eeeb2",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "description": "This tool for filter and check mails.",
+        "workflowId": {
+          "__rl": true,
+          "value": "ldSSNROsxFVWp1io",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/ldSSNROsxFVWp1io",
+          "cachedResultName": "[ IL ] AgentCheckMail"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        816,
+        464
+      ],
+      "id": "6a2cfa9e-a08f-40bd-82c1-55fcdd799242",
+      "name": "AgentCheckMail"
+    },
+    {
+      "parameters": {
+        "description": "This tool for sendind mails via Gmail.",
+        "workflowId": {
+          "__rl": true,
+          "value": "E5Ss5GygaTObLels",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/E5Ss5GygaTObLels",
+          "cachedResultName": "[ IL ] AgentSendMail"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1152,
+        464
+      ],
+      "id": "4c9610b9-4758-4e96-9cb1-1d0c8d3fa0a9",
+      "name": "AgentSendMail"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        128,
+        464
+      ],
+      "id": "ea25b94d-3803-4c9e-9958-e9d0ba5f0b86",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgentLeadAddSiteCompany": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgentLeadScrapInformationCompany": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TelegramMessage": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "QuerySheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SiteCompanySheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgentLeadMailGenerate": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgentLeadAddQuery": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgentCheckMail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgentSendMail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9db8e79f-f958-4f6d-9a3f-c674609a735e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2ba8c32709770420ad134fd1be193536028b3380b61de7792ca73fc58de437ac"
+  },
+  "id": "xV3pKc9kVlxTeKgm",
+  "tags": []
+}

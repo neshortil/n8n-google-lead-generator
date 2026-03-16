@@ -1,0 +1,1674 @@
+{
+  "name": "[ IL ] AgentCheckMail",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        32,
+        80
+      ],
+      "id": "69afa137-b108-43ce-bc9a-6d50ee215163",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1342ojoe3mf5CAY6fefNVBAonaioFnPk21Fa24POqFyo",
+          "mode": "list",
+          "cachedResultName": "Лиды компаний",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2128725837,
+          "mode": "list",
+          "cachedResultName": "Компании",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Статус получения данных",
+              "lookupValue": "1"
+            },
+            {
+              "lookupColumn": "Валидность",
+              "lookupValue": "0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        384,
+        80
+      ],
+      "id": "fa856641-0a05-418b-83d1-4a69b82bf7f5",
+      "name": "Фильтр Не обработанные",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GPV4sAvm0FMvsjFh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        48,
+        560
+      ],
+      "id": "69662cc3-2d2b-4ae9-9286-bc34f8417960",
+      "name": "Loop Over Items",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "72d2cb98-e420-473f-bb1b-20be3e478e84",
+              "name": "true",
+              "value": "Информация о компаниях по сайтам собрана, вот ссылка на документ https://docs.google.com/spreadsheets/d/",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        48,
+        1072
+      ],
+      "id": "f237dbea-78c1-43a7-bbde-cdcb4144912c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e9227222-bac5-4f26-8165-a3567d8bd612",
+              "leftValue": "={{ $json[\"Валидность\"] === 0 && $json[\"Почта\"] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        352,
+        560
+      ],
+      "id": "29358eb8-f658-4218-b878-77d2a284862c",
+      "name": "Если есть email",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().flatMap(item => {\n  const row = item.json;\n\n  const emails = row[\"Почта\"]\n    ?.split(',')\n    .map(e => e.trim())\n    .filter(e => e.length > 0);\n\n  if (!emails || emails.length === 0) return [];\n\n  return emails.map(email => {\n    // Клонируем все поля\n    const { email: _, [\"Статус получения данных\"]: __, row_number: ___, ...cleanRow } = row;\n\n    return {\n      json: {\n        ...cleanRow,\n        \"Почта\": email  // заменяем на нормализованный email\n      }\n    };\n  });\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        272
+      ],
+      "id": "c059cf49-de8a-4728-98c7-4ae57ba2044c",
+      "name": "Несколько почт",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const raw = item.json[\"Почта\"] || '';\n\n  // Ищем все email'ы в строке\n  const matches = raw.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/g) || [];\n\n  const cleaned = matches.map(email => {\n    return email\n      .replace(/^[\\d\\s\\-]+/, '')   // убираем цифры, пробелы, тире в начале\n      .replace(/^\\.*/, '')         // убираем точки в начале email\n      .toLowerCase()\n      .trim();\n  });\n\n  const result = cleaned.length > 0 ? cleaned[0] : '';\n\n  return {\n    json: {\n      ...item.json,\n      \"Почта\": result\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1728,
+        544
+      ],
+      "id": "48468471-3857-4306-ac26-dc3d4b400cc1",
+      "name": "Проверка формата"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1atHziey4boGIzKCz_x0Iw60Q915dZfHsIGyf-aO7Iwg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Google",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Сайт": "={{ $json[\"Сайт\"] }}",
+            "Инстаграм": "={{ $json[\"Инстаграм\"] }}",
+            "Почта": "={{ $json[\"Почта\"] }}",
+            "Телефон": "={{ $json[\"Телефон\"] }}",
+            "Фулл Инфа": "={{ $json[\"Фулл Инфа\"] }}",
+            "Ниша": "Салон Красоты"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Ниша",
+              "displayName": "Ниша",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Сайт",
+              "displayName": "Сайт",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Инстаграм",
+              "displayName": "Инстаграм",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Почта",
+              "displayName": "Почта",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Телефон",
+              "displayName": "Телефон",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Фулл Инфа",
+              "displayName": "Фулл Инфа",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "useAppend": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1408,
+        272
+      ],
+      "id": "280ecf28-da1a-4cb3-852f-c0c3da9ed8d5",
+      "name": "Переносим в Leads",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GPV4sAvm0FMvsjFh",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1342ojoe3mf5CAY6fefNVBAonaioFnPk21Fa24POqFyo",
+          "mode": "list",
+          "cachedResultName": "Лиды компаний",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2128725837,
+          "mode": "list",
+          "cachedResultName": "Компании",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Сайт": "={{ $json[\"Сайт\"] }}",
+            "Валидность": "inValid"
+          },
+          "matchingColumns": [
+            "Сайт"
+          ],
+          "schema": [
+            {
+              "id": "Сайт",
+              "displayName": "Сайт",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Инстаграм",
+              "displayName": "Инстаграм",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Почта",
+              "displayName": "Почта",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Телефон",
+              "displayName": "Телефон",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Фулл Инфа",
+              "displayName": "Фулл Инфа",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Статус получения данных",
+              "displayName": "Статус получения данных",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Валидность",
+              "displayName": "Валидность",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        608,
+        720
+      ],
+      "id": "2cb18ec1-917c-4562-9b4d-b728d529e350",
+      "name": "inValid",
+      "alwaysOutputData": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GPV4sAvm0FMvsjFh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1584,
+        272
+      ],
+      "id": "c7cd8e40-1cde-4e82-b488-b765066340ee",
+      "name": "Wait",
+      "webhookId": "422c88ec-2638-4103-a532-908c944e98d4"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        720
+      ],
+      "id": "8941bb7a-cd5b-47d5-a46e-2641e37967fb",
+      "name": "Wait1",
+      "webhookId": "71e02b65-8be3-4ce1-8abd-b15314c0a0fd"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        528
+      ],
+      "id": "d2baf809-0618-414e-a99c-ae05a0531c13",
+      "name": "Wait3",
+      "webhookId": "71e02b65-8be3-4ce1-8abd-b15314c0a0fd"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1342ojoe3mf5CAY6fefNVBAonaioFnPk21Fa24POqFyo",
+          "mode": "list",
+          "cachedResultName": "Лиды компаний",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2128725837,
+          "mode": "list",
+          "cachedResultName": "Компании",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Сайт": "={{ $json[\"Сайт\"] }}",
+            "Валидность": "1"
+          },
+          "matchingColumns": [
+            "Сайт"
+          ],
+          "schema": [
+            {
+              "id": "Сайт",
+              "displayName": "Сайт",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Инстаграм",
+              "displayName": "Инстаграм",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Почта",
+              "displayName": "Почта",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Телефон",
+              "displayName": "Телефон",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Фулл Инфа",
+              "displayName": "Фулл Инфа",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Статус получения данных",
+              "displayName": "Статус получения данных",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Валидность",
+              "displayName": "Валидность",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        608,
+        528
+      ],
+      "id": "3aa084d6-57f3-4b6d-9c89-7012a2f4f57d",
+      "name": "Почта есть",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GPV4sAvm0FMvsjFh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Проверка на пустой email",
+        "height": 460,
+        "width": 960,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        480
+      ],
+      "id": "977ad1b8-384f-4593-80bb-fe7e7ccd9586",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Разделяем несколько почт на отдельные",
+        "height": 460,
+        "width": 1100,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        992,
+        0
+      ],
+      "id": "7151319c-4db5-4c74-aee0-52806390aa43",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1342ojoe3mf5CAY6fefNVBAonaioFnPk21Fa24POqFyo",
+          "mode": "list",
+          "cachedResultName": "Лиды компаний",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2128725837,
+          "mode": "list",
+          "cachedResultName": "Компании",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Валидность",
+              "lookupValue": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1264,
+        64
+      ],
+      "id": "6e392e04-d38d-4d0e-8bfd-80e1ce2670bf",
+      "name": "Фильтр Есть почта",
+      "alwaysOutputData": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GPV4sAvm0FMvsjFh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1024,
+        288
+      ],
+      "id": "c8048b22-6b5e-4a2a-b016-eed8bd4371dd",
+      "name": "Loop Over Items1",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "content": "## Очистка email от мусора + проверка домена\n",
+        "height": 860,
+        "width": 1100,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        992,
+        480
+      ],
+      "id": "da98ed41-23e1-41e9-841f-f85c9093737c",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1342ojoe3mf5CAY6fefNVBAonaioFnPk21Fa24POqFyo",
+          "mode": "list",
+          "cachedResultName": "Лиды компаний",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2128725837,
+          "mode": "list",
+          "cachedResultName": "Компании",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Сайт": "={{ $('Переносим в Leads').item.json['Сайт'] }}",
+            "Валидность": "2"
+          },
+          "matchingColumns": [
+            "Сайт"
+          ],
+          "schema": [
+            {
+              "id": "Сайт",
+              "displayName": "Сайт",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Инстаграм",
+              "displayName": "Инстаграм",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Почта",
+              "displayName": "Почта",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Телефон",
+              "displayName": "Телефон",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Фулл Инфа",
+              "displayName": "Фулл Инфа",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Статус получения данных",
+              "displayName": "Статус получения данных",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Валидность",
+              "displayName": "Валидность",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1744,
+        272
+      ],
+      "id": "56037cd8-48af-4905-987c-38eda4a80a3f",
+      "name": "2 Этап",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GPV4sAvm0FMvsjFh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1520,
+        64
+      ],
+      "id": "09b95606-3e95-4fbf-8e26-1c205a6bea37",
+      "name": "Wait2",
+      "webhookId": "aac37845-a5bb-4a54-8b65-6206c5085658"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1atHziey4boGIzKCz_x0Iw60Q915dZfHsIGyf-aO7Iwg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Google",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1280,
+        544
+      ],
+      "id": "dbcaa35c-1fce-4951-97cc-3d9e19b09d96",
+      "name": "Получаем все строки",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GPV4sAvm0FMvsjFh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1024,
+        544
+      ],
+      "id": "35d9dbd2-6818-4216-b95d-4ce76893bf00",
+      "name": "Wait4",
+      "webhookId": "ae28ee48-1c0e-4385-9436-d474dac6def9"
+    },
+    {
+      "parameters": {
+        "content": "## Не обработанные",
+        "height": 460,
+        "width": 960,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "78f7750c-3934-4264-b3e0-f0e7fc2d89c6",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const emails = {};\n\nfor (const item of items) {\n  const row = item.json;\n  const email = row[\"Почта\"];\n  if (!email) continue;\n\n  const currentPhone = row[\"Телефон\"]?.toString().trim();\n  const currentHasPhone = currentPhone && currentPhone !== \"\";\n\n  if (!emails[email]) {\n    emails[email] = row;\n    continue;\n  }\n\n  const existing = emails[email];\n  const existingPhone = existing[\"Телефон\"]?.toString().trim();\n  const existingHasPhone = existingPhone && existingPhone !== \"\";\n\n  // Приоритет: строка с телефоном\n  if (currentHasPhone && !existingHasPhone) {\n    emails[email] = row;\n  } else if (currentHasPhone === existingHasPhone) {\n    // Если оба имеют или не имеют телефона — сравниваем по длине текста\n    const oldLen = Object.values(existing).join(\"\").length;\n    const newLen = Object.values(row).join(\"\").length;\n    if (newLen > oldLen) {\n      emails[email] = row;\n    }\n  }\n}\n\nreturn Object.values(emails).map(entry => ({ json: entry }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1504,
+        544
+      ],
+      "id": "b4561c58-5b2e-442c-b740-d446467115a5",
+      "name": "Чистим дубли"
+    },
+    {
+      "parameters": {
+        "jsCode": "const emails = {};\n\nfor (const item of items) {\n  const row = item.json;\n  const email = row[\"Почта\"];\n  if (!email) continue;\n\n  const currentPhone = row[\"Телефон\"]?.toString().trim();\n  const currentHasPhone = currentPhone && currentPhone !== \"\";\n\n  if (!emails[email]) {\n    emails[email] = row;\n    continue;\n  }\n\n  const existing = emails[email];\n  const existingPhone = existing[\"Телефон\"]?.toString().trim();\n  const existingHasPhone = existingPhone && existingPhone !== \"\";\n\n  // Приоритет: строка с телефоном\n  if (currentHasPhone && !existingHasPhone) {\n    emails[email] = row;\n  } else if (currentHasPhone === existingHasPhone) {\n    // Если оба имеют или не имеют телефона — сравниваем по длине текста\n    const oldLen = Object.values(existing).join(\"\").length;\n    const newLen = Object.values(row).join(\"\").length;\n    if (newLen > oldLen) {\n      emails[email] = row;\n    }\n  }\n}\n\nreturn Object.values(emails).map(entry => ({ json: entry }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        544
+      ],
+      "id": "36762a4a-b84c-43f6-abb8-e3982fc1533f",
+      "name": "Чистим дубли1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1024,
+        768
+      ],
+      "id": "fe9f6b34-31e3-4d86-8b79-7a810179ac3c",
+      "name": "Loop Over Items2"
+    },
+    {
+      "parameters": {
+        "url": "={{ `https://dns.google/resolve?name=${$json[\"Почта\"].split(\"@\")[1]}&type=MX` }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        752
+      ],
+      "id": "ff3cb367-061c-4598-a251-84ae4486a99a",
+      "name": "domain to google"
+    },
+    {
+      "parameters": {
+        "content": "## Получаем результат",
+        "height": 260,
+        "width": 560,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        960
+      ],
+      "id": "078f27da-1156-4159-be2c-de1bade413da",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "15c47f26-3207-4624-8118-b23bcc4243c6",
+              "leftValue": "={{ $json.dnsValid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1552,
+        752
+      ],
+      "id": "f6f6e22b-ac43-4e23-bf34-14a39e39f627",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1atHziey4boGIzKCz_x0Iw60Q915dZfHsIGyf-aO7Iwg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 549959839,
+          "mode": "list",
+          "cachedResultName": "Final",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Сайт": "={{ $('Loop Over Items2').item.json[\"Сайт\"] }}",
+            "Почта": "={{ $('Loop Over Items2').item.json[\"Почта\"] }}",
+            "Телефон": "={{ $('Loop Over Items2').item.json[\"Телефон\"] }}",
+            "Фулл Инфа": "={{ $('Loop Over Items2').item.json[\"Фулл Инфа\"] }}",
+            "Ниша": "Салон Красоты"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Ниша",
+              "displayName": "Ниша",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Сайт",
+              "displayName": "Сайт",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Ключевик",
+              "displayName": "Ключевик",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Почта",
+              "displayName": "Почта",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Телефон",
+              "displayName": "Телефон",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Фулл Инфа",
+              "displayName": "Фулл Инфа",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "useAppend": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1648,
+        1040
+      ],
+      "id": "d1ba9975-84d8-45e9-8df8-c056b5f5fd76",
+      "name": "Вносим full",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GPV4sAvm0FMvsjFh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const answer = item.json.Answer;\n  const isValid = Array.isArray(answer) && answer.length > 0;\n\n  return {\n    json: {\n      ...$input.item.json,\n      dnsValid: isValid\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        752
+      ],
+      "id": "9d66c354-d53d-48e1-8916-c6b3a62f71b3",
+      "name": "Валидация"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1904,
+        1120
+      ],
+      "id": "61d20c74-2336-4a8d-ac62-684b31a7065d",
+      "name": "Wait5",
+      "webhookId": "0502ce5e-6f6c-42e5-a522-4cfc4e3274b7"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1920,
+        272
+      ],
+      "id": "d1ccf538-7731-4a28-bf69-d3350182f69d",
+      "name": "Wait8",
+      "webhookId": "b81798d7-b74d-4194-8720-ca9dfc06b6b6"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e316c2c4-a05d-4ee8-abfc-538d8407006e",
+              "leftValue": "={{Object.keys($json).length}}",
+              "rightValue": "0",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1312,
+        1104
+      ],
+      "id": "2f0f7d63-e01e-4f43-a569-d1f1aa75def7",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1atHziey4boGIzKCz_x0Iw60Q915dZfHsIGyf-aO7Iwg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 549959839,
+          "mode": "list",
+          "cachedResultName": "Final",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Сайт",
+              "lookupValue": "={{ $('Loop Over Items2').item.json[\"Сайт\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1920,
+        832
+      ],
+      "id": "d9a3be21-f7f4-4dbf-b768-1a7eb5531830",
+      "name": "Проверяем на наличие",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GPV4sAvm0FMvsjFh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        1104
+      ],
+      "id": "d7d7088a-0325-45c0-adbc-84bef0664e25",
+      "name": "Wait9",
+      "webhookId": "9ad86432-cdfb-4685-b8ba-9aaf6980a53d"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1792,
+        768
+      ],
+      "id": "e8121af4-d40f-4c4e-96d0-e00d7a1d1a59",
+      "name": "Wait10",
+      "webhookId": "9aaefddc-0aab-497c-8ff4-5042049be95e"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn [\n  {\n    json: {\n      data: items.map(i => i.json)\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        64
+      ],
+      "id": "4a29f4ba-a5c7-40d4-afb2-6270325679a6",
+      "name": "Переходим ко 2 этапу"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Фильтр Не обработанные",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Фильтр Не обработанные": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Переходим ко 2 этапу",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Если есть email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Если есть email": {
+      "main": [
+        [
+          {
+            "node": "Почта есть",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "inValid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Несколько почт": {
+      "main": [
+        [
+          {
+            "node": "Переносим в Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Проверка формата": {
+      "main": [
+        [
+          {
+            "node": "Чистим дубли1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "inValid": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Переносим в Leads": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "2 Этап",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Почта есть": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Wait4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Несколько почт",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Фильтр Есть почта": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2 Этап": {
+      "main": [
+        [
+          {
+            "node": "Wait8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Получаем все строки": {
+      "main": [
+        [
+          {
+            "node": "Чистим дубли",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait4": {
+      "main": [
+        [
+          {
+            "node": "Получаем все строки",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Чистим дубли": {
+      "main": [
+        [
+          {
+            "node": "Проверка формата",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "domain to google",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Чистим дубли1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "domain to google": {
+      "main": [
+        [
+          {
+            "node": "Валидация",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Wait10",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Вносим full": {
+      "main": [
+        [
+          {
+            "node": "Wait5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Валидация": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait5": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait8": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Вносим full",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Проверяем на наличие": {
+      "main": [
+        [
+          {
+            "node": "Wait9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait9": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait10": {
+      "main": [
+        [
+          {
+            "node": "Проверяем на наличие",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Переходим ко 2 этапу": {
+      "main": [
+        [
+          {
+            "node": "Фильтр Есть почта",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "4932f381-7ceb-497a-a7c8-4a5f5f4ee43c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2ba8c32709770420ad134fd1be193536028b3380b61de7792ca73fc58de437ac"
+  },
+  "id": "ldSSNROsxFVWp1io",
+  "tags": []
+}

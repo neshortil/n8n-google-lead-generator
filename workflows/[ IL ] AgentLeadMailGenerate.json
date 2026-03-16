@@ -1,0 +1,683 @@
+{
+  "name": "[ IL ] AgentLeadMailGenerate",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        -32
+      ],
+      "id": "f765b49c-42d6-4c34-95ab-3d8212a835b9",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Отредактируй текст внутри этого HTML email шаблона.\n\nHTML код менять нельзя.\n\nHTML шаблон:\n\n{{ $('add email and html').item.json.html_template }}",
+        "options": {
+          "systemMessage": "=ROLE\nТы — AI редактор HTML email шаблонов.\n\nТвоя задача — изменить текст письма внутри HTML, не изменяя HTML код.\n\n------------------------------------------------\n\nRULES\n\n1. HTML код менять запрещено.\n\nЗапрещено менять:\n- HTML теги\n- структуру документа\n- таблицы\n- CSS\n- inline styles\n- layout письма\n- изображения\n- кнопки\n- ссылки\n- размеры блоков\n- padding / margin\n\nHTML должен остаться абсолютно таким же.\n\n2. Разрешено менять только текст между HTML тегами.\n\nНапример:\n\n<h1>текст</h1>  \n<p>текст</p>  \n<span>текст</span>  \n<a>текст кнопки</a>\n\nHTML теги должны остаться без изменений.\n\n3. Язык письма менять нельзя.\n\nЕсли письмо на украинском — оставь украинский.  \nЕсли письмо на русском — оставь русский.\n\n4. Email.\n\nВо всех местах где встречается email используй только:\n\n{{ $('add email and html').item.json.default_email }}\n\nЕсли встречается другой email — замени его.\n\n------------------------------------------------\n\nTASK\n\nСлегка перефразировать текст письма чтобы:\n\n• письмо выглядело уникальным  \n• смысл остался тем же  \n\nИзменять можно:\n\n- заголовки\n- короткие абзацы\n- CTA кнопки\n- продающие фразы\n\n------------------------------------------------\n\nINPUT\n\nHTML шаблон письма будет передан в user message.\n\n------------------------------------------------\n\nOUTPUT FORMAT\n\nОтвет должен содержать только HTML.\n\nЗапрещено добавлять:\n- markdown\n- ```\n- ```html\n- комментарии\n- пояснения\n- любой текст вне HTML\n\nОтвет должен начинаться сразу с HTML тега.\n\nНапример:\n\n<span>\nили\n<!DOCTYPE html>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        816,
+        288
+      ],
+      "id": "1ece2b8d-68b7-4bb3-ac93-57d40d11b86e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8667e254-1dbc-4fad-99ec-4e9a246e2522",
+              "leftValue": "={{ $json[\"Почта\"] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        288
+      ],
+      "id": "9408e46b-3c3c-4b3a-aeab-c97bf726faa4",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        224,
+        288
+      ],
+      "id": "c8e9d9f4-b937-4c4c-a38c-2b383d87d32a",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ad085049-c134-4dbe-a14b-ca66ef3d33a8",
+              "name": "true",
+              "value": "Письма для компаний созданы. Посмотрите на https://docs.google.com/spreadsheets/d/",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1152,
+        -32
+      ],
+      "id": "d7ee77ee-ca87-48b6-8ef6-69fb2eee5c1a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "content": "## Add your mail and HTML from Brevo",
+        "height": 240,
+        "width": 640,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        176,
+        -96
+      ],
+      "id": "279818b1-c798-4b7e-a5ba-1a9bc605bf0e",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Получение результата",
+        "height": 236,
+        "width": 300,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        -96
+      ],
+      "id": "901c22e4-1fe1-4c94-a8ce-ab2f44a0b558",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Create different texts for mails",
+        "height": 452,
+        "width": 1180,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        176,
+        224
+      ],
+      "id": "6484d908-30a7-42e9-9051-2702c6996f1a",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        784,
+        512
+      ],
+      "id": "f5cb2276-38d8-4036-b786-d40abfe446fd",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "bSfqMAlQFAerUcUQ",
+          "name": "my local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1atHziey4boGIzKCz_x0Iw60Q915dZfHsIGyf-aO7Iwg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 549959839,
+          "mode": "list",
+          "cachedResultName": "Final",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "create mail ?",
+              "lookupValue": "0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        640,
+        -32
+      ],
+      "id": "9eae7987-bf55-4e1d-8be5-213cacd73c4f",
+      "name": "create mail ?",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GPV4sAvm0FMvsjFh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1atHziey4boGIzKCz_x0Iw60Q915dZfHsIGyf-aO7Iwg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 549959839,
+          "mode": "list",
+          "cachedResultName": "Final",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "create mail ?": "Error"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Ниша",
+              "displayName": "Ниша",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Сайт",
+              "displayName": "Сайт",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "mail",
+              "displayName": "mail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "create mail ?",
+              "displayName": "create mail ?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Почта",
+              "displayName": "Почта",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Телефон",
+              "displayName": "Телефон",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Фулл Инфа",
+              "displayName": "Фулл Инфа",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "DM ОТПРАВЛЕНО ?",
+              "displayName": "DM ОТПРАВЛЕНО ?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        416,
+        496
+      ],
+      "id": "29cb75f9-ef9f-42c7-bb25-7f6e70595673",
+      "name": "Error",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GPV4sAvm0FMvsjFh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1atHziey4boGIzKCz_x0Iw60Q915dZfHsIGyf-aO7Iwg",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 549959839,
+          "mode": "list",
+          "cachedResultName": "Final",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Почта": "={{ $('If').item.json['Почта'] }}",
+            "mail": "={{ $json.output }}",
+            "create mail ?": "1"
+          },
+          "matchingColumns": [
+            "Почта"
+          ],
+          "schema": [
+            {
+              "id": "Ниша",
+              "displayName": "Ниша",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Сайт",
+              "displayName": "Сайт",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "mail",
+              "displayName": "mail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "create mail ?",
+              "displayName": "create mail ?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Почта",
+              "displayName": "Почта",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Телефон",
+              "displayName": "Телефон",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Фулл Инфа",
+              "displayName": "Фулл Инфа",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "DM ОТПРАВЛЕНО ?",
+              "displayName": "DM ОТПРАВЛЕНО ?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1184,
+        288
+      ],
+      "id": "1a7aa640-42d9-4e10-9069-df2e3a3f6626",
+      "name": "add text to mail",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GPV4sAvm0FMvsjFh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dc662681-72d6-4dcd-838a-f2f776c305b8",
+              "name": "default_email",
+              "value": "angelakieruty@gmail.com",
+              "type": "string"
+            },
+            {
+              "id": "91ed67f1-e4c0-47c3-b8fd-fe70ee216e6a",
+              "name": "html_template",
+              "value": "<span style=\"display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;\"> 70% клієнтів йдуть, якщо не отримують відповідь протягом 10 хвилин. </span>  <!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"> <html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"format-detection\" content=\"telephone=no\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Салони вже використовують AI. А ви?</title><style type=\"text/css\" emogrify=\"no\">#outlook a { padding:0; } .ExternalClass { width:100%; } .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div { line-height: 100%; } table td { border-collapse: collapse; mso-line-height-rule: exactly; } .editable.image { font-size: 0 !important; line-height: 0 !important; } .nl2go_preheader { display: none !important; mso-hide:all !important; mso-line-height-rule: exactly; visibility: hidden !important; line-height: 0px !important; font-size: 0px !important; } body { width:100% !important; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; margin:0; padding:0; } img { outline:none; text-decoration:none; -ms-interpolation-mode: bicubic; } a img { border:none; } table { border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt; } th { font-weight: normal; text-align: left; } *[class=\"gmail-fix\"] { display: none !important; } </style><style type=\"text/css\" emogrify=\"no\"> @media (max-width: 600px) { .gmx-killpill { content: ' \\03D1';} } </style><style type=\"text/css\" emogrify=\"no\">@media (max-width: 600px) { .gmx-killpill { content: ' \\03D1';} .r0-o { border-style: solid !important; margin: 0 auto 0 auto !important; width: 100% !important } .r1-i { background-color: #0d223f !important } .r2-c { box-sizing: border-box !important; text-align: center !important; valign: top !important; width: 320px !important } .r3-o { border-style: solid !important; margin: 0 auto 0 auto !important; width: 320px !important } .r4-i { padding-left: 10px !important; padding-right: 10px !important; padding-top: 29px !important } .r5-c { box-sizing: border-box !important; display: block !important; valign: top !important; width: 100% !important } .r6-o { border-style: solid !important; width: 100% !important } .r7-o { border-style: solid !important; margin: 0 auto 0 auto !important; width: 208px !important } .r8-o { border-style: solid !important; margin: 0 auto 0 0 !important; width: 100% !important } .r9-i { padding-bottom: 0px !important; padding-left: 0px !important; padding-right: 0px !important; padding-top: 0px !important; text-align: center !important } .r10-c { box-sizing: border-box !important; text-align: center !important; valign: middle !important; width: 320px !important } .r11-i { padding-left: 10px !important; padding-right: 10px !important; padding-top: 15px !important } .r12-c { box-sizing: border-box !important; display: block !important; valign: middle !important; width: 100% !important } .r13-i { padding-top: 2px !important } .r14-i { padding-top: 13px !important; text-align: center !important } .r15-i { padding-top: 10px !important } .r16-i { padding-bottom: 50px !important; padding-left: 10px !important; padding-right: 10px !important; padding-top: 40px !important } .r17-o { border-style: solid !important; margin: 0 auto 0 auto !important; width: 280px !important } .r18-i { padding: 0 !important; text-align: center !important } .r19-r { background-color: #ffffff !important; border-color: #ffffff !important; border-radius: 0px !important; border-width: 1px !important; padding: 0 !important; padding-bottom: 12px !important; padding-left: 5px !important; padding-right: 5px !important; padding-top: 12px !important; text-align: center !important; width: 268px !important } .r20-c { box-sizing: border-box !important; text-align: center !important; valign: top !important; width: 100% !important } .r21-i { background-color: #ffffff !important; padding-bottom: 0px !important; padding-left: 10px !important; padding-right: 10px !important; padding-top: 40px !important } .r22-o { border-style: solid !important; margin: 0 auto 0 0 !important; margin-bottom: 0px !important; margin-top: 0px !important; width: 100% !important } .r23-i { text-align: center !important } .r24-i { padding-bottom: 0px !important; padding-top: 9px !important } .r25-c { box-sizing: border-box !important; text-align: center !important; valign: middle !important; width: 100% !important } .r26-o { border-style: solid !important; margin: 0 auto 0 auto !important; margin-top: 29px !important; width: 100% !important } .r27-i { background-color: #0d223f !important; padding-bottom: 0px !important; padding-left: 0px !important; padding-right: 0px !important } .r28-o { background-size: auto !important; border-style: solid !important; margin: 0 0 0 auto !important; width: 100% !important } .r29-c { box-sizing: border-box !important; text-align: left !important; valign: top !important; width: 100% !important } .r30-i { padding-bottom: 30px !important; padding-left: 10px !important; padding-right: 10px !important; padding-top: 10px !important } .r31-i { padding-top: 18px !important; text-align: center !important } .r32-c { box-sizing: border-box !important; padding: 0 !important; text-align: center !important; valign: top !important; width: 175px !important } .r33-o { border-style: solid !important; margin: 0 auto 0 auto !important; margin-top: 35px !important; width: 175px !important } .r34-r { background-color: #ffffff !important; border-color: #ffffff !important; border-radius: 1px !important; border-width: 1px !important; padding: 0 !important; padding-bottom: 5px !important; padding-left: 0px !important; padding-right: 0px !important; padding-top: 4px !important; text-align: center !important; width: 173px !important } .r35-o { border-style: solid !important; margin: 0 auto 0 auto !important; margin-top: 30px !important; width: 100% !important } .r36-i { background-color: #0d223f !important; padding-bottom: 0px !important; padding-left: 0px !important; padding-right: 0px !important; padding-top: 0px !important } .r37-i { padding-top: 16px !important; text-align: center !important } .r38-o { border-style: solid !important; margin: 0 auto 0 auto !important; margin-bottom: 0px !important; margin-top: 0px !important; width: 100% !important } .r39-i { background-color: #ffffff !important; padding-bottom: 20px !important; padding-left: 15px !important; padding-right: 15px !important; padding-top: 20px !important } .r40-i { padding-left: 0px !important; padding-right: 0px !important } .r41-c { box-sizing: border-box !important; padding-top: 15px !important; text-align: left !important; valign: top !important; width: 100% !important } .r42-i { padding-bottom: 30px !important; padding-left: 10px !important; padding-right: 10px !important; padding-top: 30px !important } .r43-i { padding-top: 7px !important; text-align: center !important } .r44-i { padding-left: 0px !important; padding-right: 0px !important; padding-top: 20px !important } .r45-c { box-sizing: border-box !important; padding-top: 7px !important; text-align: center !important; valign: top !important; width: 100% !important } body { -webkit-text-size-adjust: none } .nl2go-responsive-hide { display: none } .nl2go-body-table { min-width: unset !important } .mobshow { height: auto !important; overflow: visible !important; max-height: unset !important; visibility: visible !important } .resp-table { display: inline-table !important } .magic-resp { display: table-cell !important } } </style><!--[if !mso]><!--><style type=\"text/css\" emogrify=\"no\">@import url(\"https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap\"); @import url(\"https://fonts.googleapis.com/css2?family=Gentium+Basic:ital,wght@0,400;0,700;1,700&display=swap\"); @import url(\"https://fonts.googleapis.com/css2?family=Montserrat\"); </style><!--<![endif]--><style type=\"text/css\">p, h1, h2, h3, h4, ol, ul, li { margin: 0; } .nl2go-default-textstyle { color: #363636; font-family: Gentium Basic, Times, Times New Roman, serif; font-size: 18px; line-height: 1.3; word-break: break-word } .default-button { color: #000000; font-family: Playfair Display, Times, Times New Roman, serif; font-size: 20px; font-style: normal; font-weight: normal; line-height: 1.15; text-decoration: none; word-break: break-word } a, a:link { color: #b6a034; text-decoration: none } .default-heading1 { color: #0D223F; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 32px; word-break: break-word } .default-heading2 { color: #0D223F; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 22px; word-break: break-word } .default-heading3 { color: #0D223F; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 24px; word-break: break-word } .default-heading4 { color: #0D223F; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 18px; word-break: break-word } .sib_class_16_gent_white_reg { color: #FFFFFF; font-family: Gentium Basic, Times, Times New Roman, serif, Arial; font-size: 16px; font-weight: 400; word-break: break-word } .sib_class_16_white_bold { color: #FFFFFF; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 16px; font-weight: 700; word-break: break-word } .sib_class_18_gent_black_reg { color: #363636; font-family: Gentium Basic, Times, Times New Roman, serif, Arial; font-size: 18px; font-weight: 400; word-break: break-word } .sib_class_18_white_reg { color: #FFFFFF; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 18px; font-weight: 400; word-break: break-word } .sib_class_20_black_reg { color: #363636; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 20px; font-weight: 400; word-break: break-word } .sib_class_20_black_reg_b { color: #363636; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 20px; font-weight: 700; word-break: break-word } .sib_class_20_dark_blue_bold { color: #0D223F; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 20px; font-weight: 700; word-break: break-word } .sib_class_20_dark_blue_reg { color: #0D223F; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 20px; font-weight: 400; word-break: break-word } .sib_class_20_white_reg { color: #FFFFFF; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 20px; font-weight: 400; word-break: break-word } .sib_class_22_black_reg { color: #363636; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 22px; font-weight: 400; word-break: break-word } .sib_class_22_dark_blue_b { color: #0D223F; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 22px; font-weight: 700; word-break: break-word } .sib_class_24_dark_blue_b { color: #0D223F; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 24px; font-weight: 700; word-break: break-word } .sib_class_25_gent_black_b_i { color: #363636; font-family: Gentium Basic, Times, Times New Roman, serif, Arial; font-size: 25px; font-style: italic; font-weight: 700; text-decoration: line-through; word-break: break-word } .sib_class_27_gent_white_bold { color: #FFFFFF; font-family: Gentium Basic, Times, Times New Roman, serif, Arial; font-size: 27px; font-weight: 700; word-break: break-word } .sib_class_32_dark_blue_b { color: #0D223F; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 32px; font-weight: 700; word-break: break-word } .sib_class_33_gent_black_b_i { color: #363636; font-family: Gentium Basic, Times, Times New Roman, serif, Arial; font-size: 33px; font-style: italic; font-weight: 700; word-break: break-word } .sib_class_59_white_reg { color: #FFFFFF; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 59px; font-weight: 400; word-break: break-word } .sib_class_60_white_black { color: #FFFFFF; font-family: Playfair Display, Times, Times New Roman, serif, Arial; font-size: 60px; font-weight: 900; word-break: break-word } .sib_class_headline1 { color: #333333; font-family: Gentium Basic, Times, Times New Roman, serif, Arial; font-size: 32px; font-weight: bold; word-break: break-word } a[x-apple-data-detectors] { color: inherit !important; text-decoration: inherit !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; } .no-show-for-you { border: none; display: none; float: none; font-size: 0; height: 0; line-height: 0; max-height: 0; mso-hide: all; overflow: hidden; table-layout: fixed; visibility: hidden; width: 0; } </style><!--[if mso]><xml> <o:OfficeDocumentSettings> <o:AllowPNG/> <o:PixelsPerInch>96</o:PixelsPerInch> </o:OfficeDocumentSettings> </xml><![endif]--><style type=\"text/css\">a:link{color: #b6a034; text-decoration: none;}</style></head><body text=\"#363636\" link=\"#b6a034\" yahoo=\"fix\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" class=\"nl2go-body-table\" width=\"100%\" style=\"width: 100%;\"><tr><td> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"center\" class=\"r0-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td valign=\"top\" class=\"r1-i\" style=\"background-color: #0d223f;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"560\" align=\"center\" class=\"r3-o\" style=\"table-layout: fixed; width: 560px;\"><tr><td class=\"r4-i\" style=\"padding-left: 20px; padding-right: 20px; padding-top: 29px;\"> <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\"><tr><th width=\"100%\" valign=\"top\" class=\"r5-c\" style=\"font-weight: normal;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"174\" align=\"center\" class=\"r7-o\" style=\"table-layout: fixed; width: 174px;\"><tr><td style=\"font-size: 0px; line-height: 0px;\"> <a href=\"mailto:alenyafrostveil@gmail.com?subject=%D0%97%D0%B0%D0%BF%D0%B8%D1%82%20%D1%89%D0%BE%D0%B4%D0%BE%20AI-%D0%B0%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BD%D1%82%D0%B0%20%D0%B4%D0%BB%D1%8F%20%D1%81%D0%B0%D0%BB%D0%BE%D0%BD%D1%83.&body=%D0%94%D0%BE%D0%B1%D1%80%D0%BE%D0%B3%D0%BE%20%D0%B4%D0%BD%D1%8F!%20%D0%A5%D0%BE%D1%87%D1%83%20%D0%B4%D1%96%D0%B7%D0%BD%D0%B0%D1%82%D0%B8%D1%81%D1%8C%20%D0%B1%D1%96%D0%BB%D1%8C%D1%88%D0%B5.\" style=\"color: #b6a034; text-decoration: none;\"> <img src=\"https://img.mailinblue.com/9102339/images/content_library/original/680d0d49b0af2987e384e684.png\" width=\"174\" title=\"Натисніть, щоб написати нам листа.\" border=\"0\" style=\"display: block; width: 100%;\"></a> </td> </tr></table><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"left\" class=\"r8-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td align=\"center\" valign=\"top\" class=\"r9-i nl2go-default-textstyle\" style=\"color: #363636; font-family: Gentium Basic,Times,Times New Roman,serif; font-size: 18px; word-break: break-word; line-height: 1.2; text-align: center;\"> <div><p style=\"margin: 0;\"><span style=\"color: #ffffff; font-family: Gentium Basic; font-size: 48px;\">Втрачаєте клієнтів, </span><br><span style=\"color: #ffffff; font-family: Gentium Basic; font-size: 48px;\">поки Instagram мовчить?</span></p></div> </td> </tr></table></th> </tr></table></td> </tr></table></td> </tr></table><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"center\" class=\"r0-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td valign=\"top\" class=\"r1-i\" style=\"background-color: #0d223f;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"560\" align=\"center\" class=\"r3-o\" style=\"table-layout: fixed; width: 560px;\"><tr><td class=\"r11-i\" style=\"padding-left: 100px; padding-right: 100px; padding-top: 15px;\"> <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\"><tr><th width=\"8.33%\" valign=\"middle\" class=\"r12-c\" style=\"font-weight: normal;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"29\" align=\"left\" class=\"r8-o\" style=\"table-layout: fixed;\"><tr><td class=\"r13-i\" style=\"padding-top: 2px; height: 1px;\"> <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\"><tr><td><table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" class=\"r13-i\" height=\"1\" style=\"border-top-style: solid; background-clip: border-box; border-top-color: #FFFFFF; border-top-width: 1px; font-size: 1px; line-height: 1px;\"><tr><td height=\"0\" style=\"font-size: 0px; line-height: 0px;\">­</td> </tr></table></td> </tr></table></td> </tr></table></th> <th width=\"83.33%\" valign=\"middle\" class=\"r12-c\" style=\"font-weight: normal;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"left\" class=\"r8-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td align=\"center\" valign=\"top\" class=\"r14-i nl2go-default-textstyle\" style=\"color: #363636; font-family: Gentium Basic,Times,Times New Roman,serif; font-size: 18px; line-height: 1.3; word-break: break-word; text-align: center;\"> <div><div class=\"sib_class_27_gent_white_bold\" style=\"color: #fff; font-family: Gentium Basic,Times,Times New Roman,serif,Arial; font-size: 27px; font-weight: 700; word-break: break-word;\"><span style=\"font-size: 26px;\">AI - Адміністратор </span></div></div> </td> </tr></table></th> <th width=\"8.33%\" valign=\"middle\" class=\"r12-c\" style=\"font-weight: normal;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"29\" align=\"left\" class=\"r8-o\" style=\"table-layout: fixed;\"><tr><td class=\"r15-i\" style=\"padding-top: 2px; height: 1px;\"> <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\"><tr><td><table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" class=\"r15-i\" height=\"1\" style=\"border-top-style: solid; background-clip: border-box; border-top-color: #FFFFFF; border-top-width: 1px; font-size: 1px; line-height: 1px;\"><tr><td height=\"0\" style=\"font-size: 0px; line-height: 0px;\">­</td> </tr></table></td> </tr></table></td> </tr></table></th> </tr></table></td> </tr></table></td> </tr></table><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"center\" class=\"r0-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td valign=\"top\" class=\"r1-i\" style=\"background-color: #0d223f;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"560\" align=\"center\" class=\"r3-o\" style=\"table-layout: fixed; width: 560px;\"><tr><td class=\"r16-i\" style=\"padding-bottom: 50px; padding-left: 20px; padding-right: 20px; padding-top: 40px;\"> <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\"><tr><th width=\"100%\" valign=\"top\" class=\"r5-c\" style=\"font-weight: normal;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"347\" align=\"center\" class=\"r17-o\" style=\"background-color: #ffffff; border-collapse: separate; border-color: #ffffff; border-radius: 0px; border-style: solid; border-width: 1px; table-layout: fixed; width: 347px;\"><tr><td height=\"22\" align=\"center\" valign=\"top\" class=\"r18-i nl2go-default-textstyle\" style=\"word-break: break-word; background-color: #ffffff; border-radius: 0px; color: #000000; font-family: Playfair Display, Times, Times New Roman, serif; font-size: 20px; font-style: normal; line-height: 1.15; padding-bottom: 12px; padding-left: 5px; padding-right: 5px; padding-top: 12px; text-align: center;\"> <a href=\"mailto:alenyafrostveil@gmail.com?subject=%D0%97%D0%B0%D0%BF%D0%B8%D1%82%20%D1%89%D0%BE%D0%B4%D0%BE%20AI-%D0%B0%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BD%D1%82%D0%B0%20%D0%B4%D0%BB%D1%8F%20%D1%81%D0%B0%D0%BB%D0%BE%D0%BD%D1%83.&body=%D0%94%D0%BE%D0%B1%D1%80%D0%BE%D0%B3%D0%BE%20%D0%B4%D0%BD%D1%8F!%20%D0%A5%D0%BE%D1%87%D1%83%20%D0%B4%D1%96%D0%B7%D0%BD%D0%B0%D1%82%D0%B8%D1%81%D1%8C%20%D0%B1%D1%96%D0%BB%D1%8C%D1%88%D0%B5.\" class=\"r19-r default-button\" target=\"_blank\" title=\"Натисніть, щоб написати нам листа.\" data-btn=\"1\" style=\"font-style: normal; font-weight: normal; line-height: 1.15; text-decoration: none; word-break: break-word; word-wrap: break-word; display: block; -webkit-text-size-adjust: none; color: #000000; font-family: Playfair Display, Times, Times New Roman, serif; font-size: 20px;\"> <span>Безкоштовна консультація</span></a> </td> </tr></table></th> </tr></table></td> </tr></table></td> </tr></table><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"560\" align=\"center\" class=\"r3-o\" style=\"table-layout: fixed; width: 560px;\"><tr><td valign=\"top\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"center\" class=\"r0-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td class=\"r21-i\" style=\"background-color: #ffffff; padding-top: 40px;\"> <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\"><tr><th width=\"100%\" valign=\"top\" class=\"r5-c\" style=\"font-weight: normal;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"left\" class=\"r22-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td align=\"left\" valign=\"top\" class=\"r23-i nl2go-default-textstyle\" style=\"color: #363636; font-family: Gentium Basic,Times,Times New Roman,serif; font-size: 18px; line-height: 1.3; word-break: break-word; text-align: left;\"> <div><h1 class=\"default-heading1\" style=\"margin: 0; color: #0d223f; font-family: Playfair Display,Times,Times New Roman,serif,Arial; font-size: 32px; word-break: break-word;\"> Досі роздумуєте над AI?</h1></div> </td> </tr></table><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"560\" align=\"center\" class=\"r0-o\" style=\"table-layout: fixed;\"><tr><td class=\"r24-i\" style=\"padding-top: 9px; height: 1px;\"> <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\"><tr><td><table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" class=\"r24-i\" height=\"1\" style=\"border-top-style: solid; background-clip: border-box; border-top-color: #0d223f; border-top-width: 1px; font-size: 1px; line-height: 1px;\"><tr><td height=\"0\" style=\"font-size: 0px; line-height: 0px;\">­</td> </tr></table></td> </tr></table></td> </tr></table></th> </tr></table></td> </tr></table><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"center\" class=\"r26-o\" style=\"table-layout: fixed; width: 100%;\"><tr class=\"nl2go-responsive-hide\"><td height=\"29\" style=\"font-size: 29px; line-height: 29px;\">­</td> </tr><tr><td class=\"r27-i\" style=\"background-color: #0d223f;\"> <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\"><tr><th width=\"50%\" valign=\"middle\" class=\"r12-c\" style=\"font-weight: normal;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"280\" align=\"right\" class=\"r28-o\" style=\"table-layout: fixed; width: 280px;\"><tr><td style=\"font-size: 0px; line-height: 0px;\"> <img src=\"https://img.mailinblue.com/9102339/images/content_library/original/680d0273548b228f120a9862.png\" width=\"280\" border=\"0\" style=\"display: block; width: 100%;\"></td> </tr></table></th> <th width=\"50%\" valign=\"middle\" class=\"r12-c\" style=\"font-weight: normal;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"left\" class=\"r8-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td valign=\"top\" class=\"r30-i\" style=\"padding-left: 20px; padding-right: 20px;\"> <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\"><tr><td class=\"r29-c\" align=\"left\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" class=\"r8-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td align=\"center\" valign=\"top\" class=\"r31-i nl2go-default-textstyle\" style=\"color: #363636; font-family: Gentium Basic,Times,Times New Roman,serif; font-size: 18px; word-break: break-word; line-height: 1.5; padding-top: 18px; text-align: center;\"> <div><div class=\"sib_class_18_white_reg\" style=\"color: #fff; font-family: Playfair Display,Times,Times New Roman,serif,Arial; font-size: 18px; font-weight: 400; word-break: break-word;\"><span style=\"color: #FFFFFF;\">Клієнт пише в Instagram, а відповідь надходить через 3 години. За цей час він уже пішов до іншого салону.</span></div></div> </td> </tr></table></td> </tr><tr><td class=\"r32-c\" align=\"center\" style=\"align: center; padding-top: 35px; valign: top;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"175\" class=\"r33-o\" style=\"background-color: #ffffff; border-collapse: separate; border-color: #ffffff; border-radius: 1px; border-style: solid; border-width: 1px; table-layout: fixed; width: 175px;\"><tr><td height=\"22\" align=\"center\" valign=\"top\" class=\"r18-i nl2go-default-textstyle\" style=\"word-break: break-word; background-color: #ffffff; border-radius: 1px; color: #000000; font-family: Playfair Display, Times, Times New Roman, serif; font-size: 20px; font-style: normal; line-height: 1.15; padding-bottom: 5px; padding-left: 0px; padding-right: 0px; padding-top: 4px; text-align: center;\"> <a href=\"mailto:alenyafrostveil@gmail.com?subject=%D0%97%D0%B0%D0%BF%D0%B8%D1%82%20%D1%89%D0%BE%D0%B4%D0%BE%20AI-%D0%B0%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BD%D1%82%D0%B0%20%D0%B4%D0%BB%D1%8F%20%D1%81%D0%B0%D0%BB%D0%BE%D0%BD%D1%83.&body=%D0%94%D0%BE%D0%B1%D1%80%D0%BE%D0%B3%D0%BE%20%D0%B4%D0%BD%D1%8F!%20%D0%A5%D0%BE%D1%87%D1%83%20%D0%B4%D1%96%D0%B7%D0%BD%D0%B0%D1%82%D0%B8%D1%81%D1%8C%20%D0%B1%D1%96%D0%BB%D1%8C%D1%88%D0%B5.\" class=\"r34-r default-button\" target=\"_blank\" title=\"Натисніть, щоб написати нам листа.\" data-btn=\"2\" style=\"font-style: normal; font-weight: normal; line-height: 1.15; text-decoration: none; word-break: break-word; word-wrap: break-word; display: block; -webkit-text-size-adjust: none; color: #000000; font-family: Playfair Display, Times, Times New Roman, serif; font-size: 20px;\"> <span>Спробувати</span></a> </td> </tr></table></td> </tr></table></td> </tr></table></th> </tr></table></td> </tr></table><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"center\" class=\"r35-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td class=\"r36-i\" style=\"background-color: #0d223f;\"> <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\"><tr><th width=\"50%\" valign=\"middle\" class=\"r12-c\" style=\"font-weight: normal;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"left\" class=\"r8-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td valign=\"top\" class=\"r30-i\" style=\"padding-left: 20px; padding-right: 20px;\"> <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\"><tr><td class=\"r29-c\" align=\"left\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" class=\"r8-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td align=\"center\" valign=\"top\" class=\"r23-i nl2go-default-textstyle\" style=\"color: #363636; font-family: Gentium Basic,Times,Times New Roman,serif; font-size: 18px; word-break: break-word; line-height: 1; text-align: center;\"> <div><div class=\"sib_class_60_white_black\" style=\"color: #fff; font-family: Playfair Display,Times,Times New Roman,serif,Arial; font-size: 60px; font-weight: 900; word-break: break-word;\">70%</div></div> </td> </tr></table></td> </tr><tr><td class=\"r29-c\" align=\"left\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" class=\"r8-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td align=\"center\" valign=\"top\" class=\"r37-i nl2go-default-textstyle\" style=\"color: #363636; font-family: Gentium Basic,Times,Times New Roman,serif; font-size: 18px; word-break: break-word; line-height: 1.5; padding-top: 16px; text-align: center;\"> <div><div class=\"sib_class_18_white_reg\" style=\"color: #fff; font-family: Playfair Display,Times,Times New Roman,serif,Arial; font-size: 18px; font-weight: 400; word-break: break-word;\">клієнтів не чекають більше 10 хвилин. Без швидкої відповіді — ви втрачаєте до половини записів.</div></div> </td> </tr></table></td> </tr><tr><td class=\"r32-c\" align=\"center\" style=\"align: center; padding-top: 35px; valign: top;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"175\" class=\"r33-o\" style=\"background-color: #ffffff; border-collapse: separate; border-color: #ffffff; border-radius: 1px; border-style: solid; border-width: 1px; table-layout: fixed; width: 175px;\"><tr><td height=\"22\" align=\"center\" valign=\"top\" class=\"r18-i nl2go-default-textstyle\" style=\"word-break: break-word; background-color: #ffffff; border-radius: 1px; color: #000000; font-family: Playfair Display, Times, Times New Roman, serif; font-size: 20px; font-style: normal; line-height: 1.15; padding-bottom: 5px; padding-left: 0px; padding-right: 0px; padding-top: 4px; text-align: center;\"> <a href=\"mailto:alenyafrostveil@gmail.com?subject=%D0%97%D0%B0%D0%BF%D0%B8%D1%82%20%D1%89%D0%BE%D0%B4%D0%BE%20AI-%D0%B0%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BD%D1%82%D0%B0%20%D0%B4%D0%BB%D1%8F%20%D1%81%D0%B0%D0%BB%D0%BE%D0%BD%D1%83.&body=%D0%94%D0%BE%D0%B1%D1%80%D0%BE%D0%B3%D0%BE%20%D0%B4%D0%BD%D1%8F!%20%D0%A5%D0%BE%D1%87%D1%83%20%D0%B4%D1%96%D0%B7%D0%BD%D0%B0%D1%82%D0%B8%D1%81%D1%8C%20%D0%B1%D1%96%D0%BB%D1%8C%D1%88%D0%B5.\" class=\"r34-r default-button\" target=\"_blank\" title=\"Натисніть, щоб написати нам листа.\" data-btn=\"3\" style=\"font-style: normal; font-weight: normal; line-height: 1.15; text-decoration: none; word-break: break-word; word-wrap: break-word; display: block; -webkit-text-size-adjust: none; color: #000000; font-family: Playfair Display, Times, Times New Roman, serif; font-size: 20px;\"> <span>Тестувати</span></a> </td> </tr></table></td> </tr></table></td> </tr></table></th> <th width=\"50%\" valign=\"middle\" class=\"r12-c\" style=\"font-weight: normal;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"280\" align=\"left\" class=\"r8-o\" style=\"table-layout: fixed; width: 280px;\"><tr><td style=\"font-size: 0px; line-height: 0px;\"> <img src=\"https://img.mailinblue.com/9102339/images/content_library/original/680d01565ee1198652a6e8f9.png\" width=\"280\" border=\"0\" style=\"display: block; width: 100%;\"></td> </tr></table></th> </tr></table></td> </tr></table><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"center\" class=\"r38-o\" style=\"background-color: #0d223f; table-layout: fixed; width: 100%;\"><tr><th width=\"50%\" valign=\"middle\" class=\"r12-c\" style=\"font-weight: normal;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"280\" align=\"right\" class=\"r28-o\" style=\"table-layout: fixed; width: 280px;\"><tr><td style=\"font-size: 0px; line-height: 0px;\"> <img src=\"https://img.mailinblue.com/9102339/images/content_library/original/680d0c6bb9bb9ac211a21bc2.png\" width=\"280\" border=\"0\" style=\"display: block; width: 100%;\"></td> </tr></table></th> <th width=\"50%\" valign=\"middle\" class=\"r12-c\" style=\"font-weight: normal;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"left\" class=\"r8-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td valign=\"top\" class=\"r30-i\" style=\"padding-left: 20px; padding-right: 20px;\"> <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\"><tr><td class=\"r29-c\" align=\"left\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" class=\"r8-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td align=\"center\" valign=\"top\" class=\"r31-i nl2go-default-textstyle\" style=\"color: #363636; font-family: Gentium Basic,Times,Times New Roman,serif; font-size: 18px; word-break: break-word; line-height: 1.5; padding-top: 18px; text-align: center;\"> <div><div class=\"sib_class_18_white_reg\" style=\"color: #fff; font-family: Playfair Display,Times,Times New Roman,serif,Arial; font-size: 18px; font-weight: 400; word-break: break-word;\"><span style=\"color: #FFFFFF;\">AI-асистент відповідає за адміністратора 24/7, записує в CRM, пропонує вільні місця, робить upsell.</span></div></div> </td> </tr></table></td> </tr><tr><td class=\"r32-c\" align=\"center\" style=\"align: center; padding-top: 35px; valign: top;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"175\" class=\"r33-o\" style=\"background-color: #ffffff; border-collapse: separate; border-color: #ffffff; border-radius: 1px; border-style: solid; border-width: 1px; table-layout: fixed; width: 175px;\"><tr><td height=\"22\" align=\"center\" valign=\"top\" class=\"r18-i nl2go-default-textstyle\" style=\"word-break: break-word; background-color: #ffffff; border-radius: 1px; color: #000000; font-family: Playfair Display, Times, Times New Roman, serif; font-size: 20px; font-style: normal; line-height: 1.15; padding-bottom: 5px; padding-left: 0px; padding-right: 0px; padding-top: 4px; text-align: center;\"> <a href=\"mailto:alenyafrostveil@gmail.com?subject=%D0%97%D0%B0%D0%BF%D0%B8%D1%82%20%D1%89%D0%BE%D0%B4%D0%BE%20AI-%D0%B0%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BD%D1%82%D0%B0%20%D0%B4%D0%BB%D1%8F%20%D1%81%D0%B0%D0%BB%D0%BE%D0%BD%D1%83.&body=%D0%94%D0%BE%D0%B1%D1%80%D0%BE%D0%B3%D0%BE%20%D0%B4%D0%BD%D1%8F!%20%D0%A5%D0%BE%D1%87%D1%83%20%D0%B4%D1%96%D0%B7%D0%BD%D0%B0%D1%82%D0%B8%D1%81%D1%8C%20%D0%B1%D1%96%D0%BB%D1%8C%D1%88%D0%B5.\" class=\"r34-r default-button\" target=\"_blank\" title=\"Натисніть, щоб написати нам листа.\" data-btn=\"4\" style=\"font-style: normal; font-weight: normal; line-height: 1.15; text-decoration: none; word-break: break-word; word-wrap: break-word; display: block; -webkit-text-size-adjust: none; color: #000000; font-family: Playfair Display, Times, Times New Roman, serif; font-size: 20px;\"> <span>Забронювати</span></a> </td> </tr></table></td> </tr></table></td> </tr></table></th> </tr></table><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"center\" class=\"r0-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td class=\"r39-i\" style=\"background-color: #ffffff; padding-bottom: 20px; padding-top: 20px;\"> <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\"><tr><th width=\"100%\" valign=\"top\" class=\"r5-c\" style=\"font-weight: normal;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" class=\"r6-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td valign=\"top\" class=\"r40-i\" style=\"padding-left: 15px; padding-right: 15px;\"> <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\"><tr><td class=\"r41-c nl2go-default-textstyle\" align=\"left\" style=\"color: #363636; font-family: Gentium Basic,Times,Times New Roman,serif; font-size: 18px; line-height: 1.3; word-break: break-word; padding-top: 15px; text-align: left; valign: top;\"> <div><h2 class=\"default-heading2\" style=\"margin: 0; color: #0d223f; font-family: Playfair Display,Times,Times New Roman,serif,Arial; font-size: 22px; word-break: break-word;\"><span style=\"color: #FFFFFF;\">Some title here</span></h2></div> </td> </tr></table></td> </tr></table></th> </tr></table></td> </tr></table></td> </tr></table><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"center\" class=\"r0-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td valign=\"top\" class=\"r1-i\" style=\"background-color: #0d223f;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"560\" align=\"center\" class=\"r3-o\" style=\"table-layout: fixed; width: 560px;\"><tr><td class=\"r42-i\" style=\"padding-bottom: 30px; padding-top: 30px;\"> <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\"><tr><th width=\"50%\" valign=\"top\" class=\"r5-c\" style=\"font-weight: normal;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"left\" class=\"r8-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td align=\"left\" valign=\"top\" class=\"r23-i nl2go-default-textstyle\" style=\"color: #363636; font-family: Gentium Basic,Times,Times New Roman,serif; font-size: 18px; line-height: 1.3; word-break: break-word; text-align: left;\"> <div><div class=\"sib_class_16_white_bold\" style=\"color: #fff; font-family: Playfair Display,Times,Times New Roman,serif,Arial; font-size: 16px; font-weight: 700; word-break: break-word;\">STVORY AI</div></div> </td> </tr></table><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" align=\"left\" class=\"r8-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td align=\"left\" valign=\"top\" class=\"r43-i nl2go-default-textstyle\" style=\"color: #363636; font-family: Gentium Basic,Times,Times New Roman,serif; font-size: 18px; line-height: 1.3; word-break: break-word; padding-top: 7px; text-align: left;\"> <div><div class=\"sib_class_16_gent_white_reg\" style=\"color: #fff; font-family: Gentium Basic,Times,Times New Roman,serif,Arial; font-size: 16px; font-weight: 400; word-break: break-word;\">15 Khreshchatyk Street, <br>Kyiv, 02000, Ukraine<br>alenyafrostveil@gmail.com</div></div> </td> </tr></table></th> <th width=\"50%\" valign=\"top\" class=\"r5-c\" style=\"font-weight: normal;\"> <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\" width=\"100%\" class=\"r6-o\" style=\"table-layout: fixed; width: 100%;\"><tr><td valign=\"top\" class=\"r44-i\"> <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" role=\"presentation\"><tr><td class=\"r20-c nl2go-default-textstyle\" align=\"left\" style=\"color: #363636; font-family: Gentium Basic,Times,Times New Roman,serif; font-size: 18px; line-height: 1.3; word-break: break-word; text-align: left; valign: top;\"> <div><div class=\"sib_class_16_white_bold\" style=\"color: #fff; font-family: Playfair Display,Times,Times New Roman,serif,Arial; font-size: 16px; font-weight: 700; word-break: break-word;\"> Links</div></div> </td> </tr><tr><td class=\"r45-c nl2go-default-textstyle\" align=\"left\" style=\"color: #363636; font-family: Gentium Basic,Times,Times New Roman,serif; font-size: 18px; line-height: 1.3; word-break: break-word; padding-top: 7px; text-align: left; valign: top;\"> <div><div class=\"sib_class_16_gent_white_reg\" style=\"color: #fff; font-family: Gentium Basic,Times,Times New Roman,serif,Arial; font-size: 16px; font-weight: 400; word-break: break-word;\"><a href=\"http://\" target=\"_blank\" style=\"color: #b6a034; text-decoration: none;\"><span style=\"color: #ffffff;\">Contact</span></a><br><a href=\"http://\" style=\"color: #b6a034; text-decoration: none;\"><span style=\"color: #ffffff;\">Privacy Policy</span></a><br><a href=\"mailto:alenyafrostveil@gmail.com?subject=Unsubscribe&body=%D0%9F%D1%80%D0%BE%D1%88%D1%83%20%D0%B2%D1%96%D0%B4%D0%BF%D0%B8%D1%81%D0%B0%D1%82%D0%B8%20%D0%BC%D0%B5%D0%BD%D0%B5%20%D0%B2%D1%96%D0%B4%20%D1%80%D0%BE%D0%B7%D1%81%D0%B8%D0%BB%D0%BA%D0%B8.\" title=\"Unsubscribe\" target=\"_blank\" style=\"color: #b6a034; text-decoration: none;\"><span style=\"color: #ffffff;\">Unsubscribe</span></a></div></div> </td> </tr></table></td> </tr></table></th> </tr></table></td> </tr></table></td> </tr></table></td> </tr></table></body></html>",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        -32
+      ],
+      "id": "e956fea8-e8f5-492e-8665-c1d383568685",
+      "name": "add email and html"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('If').item.json.row_number }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        928,
+        512
+      ],
+      "id": "177a717b-b962-4d0f-be35-b80adebbc277",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "add email and html",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "add text to mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create mail ?": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "add text to mail": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "add email and html": {
+      "main": [
+        [
+          {
+            "node": "create mail ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "bea4c232-76e9-4c23-acb9-2e2dfab5f320",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2ba8c32709770420ad134fd1be193536028b3380b61de7792ca73fc58de437ac"
+  },
+  "id": "rNpcVX0BKO2loSLh",
+  "tags": []
+}

@@ -1,0 +1,502 @@
+{
+  "name": "[ IL ] AgentLeadAddQuery",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -496,
+        -64
+      ],
+      "id": "ea18e658-6464-4d68-8a6e-a6502ce7e928",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4-turbo\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"ТВОЯ ЗАДАЧА – СГЕНЕРИРОВАТЬ ПОЛНЫЙ СПИСОК ВСЕХ ВОЗМОЖНЫХ ВАРИАЦИЙ ЗАПРОСОВ В ОПРЕДЕЛЁННОМ ФОРМАТЕ - УЛИЦ, УЛИЦ МОЖЕТ БЫТЬ ОТ 50 ДО 10000, МНЕ НУЖНЫ ВСЕ. ### ИНСТРУКЦИИ ### - ПОЛУЧАЕШЬ НАЗВАНИЕ ГОРОДА – СОБИРАЕШЬ ВСЕ УЛИЦЫ, ПРОСПЕКТЫ, ПЕРЕУЛКИ. - ГЕНЕРИРУЕШЬ НЕ МЕНЕЕ 100 ДЛЯ КАЖДОЙ УЛИЦЫ ВАРИАЦИЮ ЗАПРОСА В ФОРМАТЕ: **\\\"город+тематика+название+улицы+проспекта\\\"** - ВОЗВРАЩАЕШЬ СТРОГО СПИСОК В ФОРМАТЕ **БЕЗ КОММЕНТАРИЕВ, БЕЗ ПРИВЕТСТВИЙ, БЕЗ ОБЪЯСНЕНИЙ**. - НЕ ДОБАВЛЯЕШЬ ЛИШНИХ СЛОВ, НЕ СПРАШИВАЕШЬ ДОПОЛНИТЕЛЬНЫХ ВОПРОСОВ. ### ФОРМАТ ВЫВОДА ### \\\"киев+стоматология+улица_ленина\\\",\\\"киев+стоматология+проспект+победы\\\",\\\"киев+стоматология+переулок+горького\\\"\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json.query }}\"\n    }\n  ],\n  \"temperature\": 0.2,\n  \"top_p\": 0.9,\n  \"max_tokens\": 4000\n}\n ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -272,
+        -64
+      ],
+      "id": "af64802e-a8ff-44f9-8d1f-74dfaabab2d0",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items\nfor (const item of $input.all()) {\n  // Extract the \"content\" field from the JSON\n  const content = item.json.choices[0].message.content;\n\n  // Remove surrounding quotes and split by commas\n  const contentWithoutQuotes = content.replace(/^\"|\"$/g, ''); // Убираем кавычки в начале и конце\n  const contentArray = contentWithoutQuotes.split('\",\"'); // Разбиваем по запятым и кавычкам\n\n  // Add the extracted data to the JSON as a new field\n  item.json.contentArray = contentArray;\n}\n\n// Return the modified items\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        -64
+      ],
+      "id": "4cf5fe89-045b-4dae-b722-618b311fc07a",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "contentArray",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        176,
+        -64
+      ],
+      "id": "de82c90a-bdee-444d-ad09-aa1365b70c1f",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -496,
+        256
+      ],
+      "id": "04d1abe8-31ea-4d12-9be5-feb77f56dc64",
+      "name": "Loop Over Items",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1342ojoe3mf5CAY6fefNVBAonaioFnPk21Fa24POqFyo",
+          "mode": "list",
+          "cachedResultName": "Лиды компаний",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Запросы",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Запросы": "={{ $('Loop Over Items').item.json.contentArray }}",
+            "Статус выполнения": "0"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Запросы",
+              "displayName": "Запросы",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Статус выполнения",
+              "displayName": "Статус выполнения",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "useAppend": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        400,
+        256
+      ],
+      "id": "4c2d9f6d-ff52-4100-ba8c-7d4ddb15c29b",
+      "name": "Google Sheets",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GPV4sAvm0FMvsjFh",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        256
+      ],
+      "id": "3f921bb9-6734-47c0-bf05-a64a5172d0ca",
+      "name": "Wait",
+      "webhookId": "3bfe8c0f-2cae-4260-84af-c816749e595f"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1342ojoe3mf5CAY6fefNVBAonaioFnPk21Fa24POqFyo",
+          "mode": "list",
+          "cachedResultName": "Лиды компаний",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Запросы",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Запросы",
+              "lookupValue": "={{ $json.contentArray }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -272,
+        256
+      ],
+      "id": "e1b89c22-a68b-4a15-8164-b380480c2a4c",
+      "name": "Google Sheets1",
+      "retryOnFail": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GPV4sAvm0FMvsjFh",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "977f0fa6-5fdc-437c-a0b4-11235ecd9a2f",
+              "leftValue": "={{ $json[\"Запросы\"] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -48,
+        256
+      ],
+      "id": "f039b301-562c-4900-aff8-eb4ae2a557c7",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "05d3c42b-bfc3-4628-8e94-6e42a56fe3ab",
+              "name": "true",
+              "value": "=Посмотреть на результат можно тут: https://docs.google.com/spreadsheets/d/\nВот запросы которые были собраны: {{ $('Code').item.json.contentArray }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -496,
+        560
+      ],
+      "id": "a5ce5525-09b0-4f99-97a9-6b8c7da6e9f0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "content": "## Цикл записи и проверки запросов",
+        "height": 260,
+        "width": 1260,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        176
+      ],
+      "id": "d37d8aea-83cc-4623-b83f-ab7806e0e007",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Получение результата",
+        "height": 220,
+        "width": 300,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        496
+      ],
+      "id": "e6f39061-1f59-4bc1-8c73-7deed4c29cb5",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Получение и сборка запросов",
+        "height": 260,
+        "width": 1080,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        -144
+      ],
+      "id": "bc47b9c9-cfef-46e8-aac9-7e4f78fc9f7a",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        176,
+        256
+      ],
+      "id": "f2f37d0f-3d84-461d-a203-4559782fbb6d",
+      "name": "Wait1",
+      "webhookId": "de3a5d6d-0239-40e6-9da2-a0c8ab7a0283"
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "contentArray",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        400,
+        -64
+      ],
+      "id": "b36c7ca3-4fd3-4e78-ae91-5a13113e596a",
+      "name": "Remove Duplicates"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "29511d5a-f696-41f4-8895-2a93e2d54777",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2ba8c32709770420ad134fd1be193536028b3380b61de7792ca73fc58de437ac"
+  },
+  "id": "XlXrxIl4W589awNm",
+  "tags": []
+}
