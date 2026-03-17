@@ -193,7 +193,7 @@ Update the Google Sheets document IDs in each workflow node.
 - **n8n** v1.0+ (self-hosted or cloud)
 - **OpenAI API Key** (GPT-4, GPT-4o-mini, Whisper)
 - **Telegram Bot Token**
-- **Google Account** with Sheets + Gmail OAuth2
+- **Google Account** with Sheets + Gmail OAuth2 + Google Maps Api Key
 - **Brevo account** (optional — for HTML email templates)
 
 ---
