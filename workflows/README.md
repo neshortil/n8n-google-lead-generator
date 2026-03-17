@@ -1,6 +1,6 @@
-# Workflows — v1.0 (Google Maps Edition)
+# Workflows - v1.0 (Google Maps Edition)
 
-This folder contains all n8n workflow JSON files for the **n8n Google AI Lead Generator — v1.0**.
+This folder contains all n8n workflow JSON files for the **n8n Google AI Lead Generator - v1.0**.
 
 > **v1.0** uses **Google Maps** as the primary lead source.  
 > All 7 workflows below are part of the v1.0 Google Maps system.
@@ -37,7 +37,7 @@ This folder contains all n8n workflow JSON files for the **n8n Google AI Lead Ge
 ## After Importing
 
 - Update all **Google Sheets document IDs** in every Sheets node
-- Connect **OpenAI**, **Telegram**, **Google Sheets**, and **Gmail** credentials
+- Connect **OpenAI**, **Telegram**, **Google Sheets**, and **Gmail**, **Google Maps** credentials
 - Activate sub-agent workflows before activating the main workflow
 
 ---
@@ -45,11 +45,11 @@ This folder contains all n8n workflow JSON files for the **n8n Google AI Lead Ge
 ## Notes
 
 - Workflow JSON files are uploaded manually by the developer
-- Do NOT rename the workflow files — the names must remain exactly as listed above
+- Do NOT rename the workflow files - the names must remain exactly as listed above
 - See [docs/setup-guide.md](../docs/setup-guide.md) for full setup instructions
 - See [docs/workflow-explanations.md](../docs/workflow-explanations.md) for detailed workflow documentation
 - See [docs/architecture.md](../docs/architecture.md) for system architecture overview
 
 ---
 
-> **v1.0 — Google Maps Edition** | Next: v2.0 (LinkedIn), v3.0 (Multi-source)
+> 🗺️ **v1.0 — Google Maps Edition** | Released: Summer 2025 | Future: v2.0 (Smart Bot + PostgreSQL), v3.0 (SaaS)
