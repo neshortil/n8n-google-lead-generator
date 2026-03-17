@@ -7,7 +7,7 @@
 
 ## Screenshots
 
-### 1. Main Workflow — `[IL] GOOGLE LEAD GENERATOR`
+### 1. Main Workflow - `[IL] GOOGLE LEAD GENERATOR`
 *(v1.0 — Main Orchestrator)*
 
 > Upload screenshot as: `images/workflow-main.png`
@@ -21,7 +21,7 @@
 
 ---
 
-### 2. Query Generator Workflow — `[IL] AgentLeadAddQuery`
+### 2. Query Generator Workflow - `[IL] AgentLeadAddQuery`
 *(Generates Google Maps search queries)*
 
 > Upload screenshot as: `images/workflow-query-generator.png`
@@ -36,7 +36,7 @@
 
 ---
 
-### 3. Google Maps Scraper — `[IL] AgentLeadAddSiteCompany`
+### 3. Google Maps Scraper - `[IL] AgentLeadAddSiteCompany`
 *(Core v1.0 — Google Maps scraping)*
 
 > Upload screenshot as: `images/workflow-scraper.png`
@@ -50,7 +50,7 @@
 
 ---
 
-### 4. Company Info Extractor — `[IL] AgentLeadScrapInformationCompany`
+### 4. Company Info Extractor - `[IL] AgentLeadScrapInformationCompany`
 
 > Upload screenshot as: `images/workflow-scraper-info.png`
 
@@ -63,7 +63,7 @@
 
 ---
 
-### 5. Email Generator Workflow — `[IL] AgentLeadMailGenerate`
+### 5. Email Generator Workflow - `[IL] AgentLeadMailGenerate`
 
 > Upload screenshot as: `images/workflow-email-generator.png`
 
@@ -77,7 +77,7 @@
 
 ---
 
-### 6. Email Validator — `[IL] AgentCheckMail`
+### 6. Email Validator - `[IL] AgentCheckMail`
 
 > Upload screenshot as: `images/workflow-check-mail.png`
 
@@ -89,7 +89,7 @@
 
 ---
 
-### 7. Email Sender — `[IL] AgentSendMail`
+### 7. Email Sender - `[IL] AgentSendMail`
 
 > Upload screenshot as: `images/workflow-send-mail.png`
 
@@ -102,7 +102,7 @@
 
 ---
 
-### 8. Google Sheets — Query Database
+### 8. Google Sheets - Query Database
 
 > Upload screenshot as: `images/sheets-queries.png`
 
@@ -114,7 +114,7 @@
 
 ---
 
-### 9. Google Sheets — SiteCompany Database
+### 9. Google Sheets - SiteCompany Database
 *(v1.0 — data sourced from Google Maps)*
 
 > Upload screenshot as: `images/sheets-site-company.png`
@@ -128,7 +128,7 @@
 
 ---
 
-### 10. Google Sheets — Leads Database (Final)
+### 10. Google Sheets - Leads Database (Final)
 
 > Upload screenshot as: `images/google-sheets-result.png`
 
@@ -141,7 +141,7 @@
 
 ---
 
-### 11. Telegram Bot — Example Conversation
+### 11. Telegram Bot - Example Conversation
 
 > Upload screenshot as: `images/telegram-demo.png`
 
@@ -156,7 +156,7 @@
 
 ## Demo Videos
 
-### Full System Demo (v1.0 — Google Maps Edition)
+### Full System Demo (v1.0 - Google Maps Edition)
 
 **YouTube Link:** *(to be added)*
 
@@ -183,17 +183,4 @@
 
 ---
 
-## How to Add Screenshots
-
-1. Take a screenshot of the n8n workflow canvas
-2. Save with the filename listed above
-3. Upload to the `/images/` folder in this repository
-4. The image will automatically appear in this doc and in the README
-
-**Recommended screenshot resolution:** 1920x1080 or higher  
-**Recommended format:** PNG  
-**Recommended tool:** n8n built-in canvas zoom + browser screenshot
-
----
-
-> **v1.0 — Google Maps Edition** | Next: v2.0 (LinkedIn), v3.0 (Multi-source)
+> 🗺️ **v1.0 — Google Maps Edition** | Released: Summer 2025 | Future: v2.0 (Smart Bot + PostgreSQL), v3.0 (SaaS)
